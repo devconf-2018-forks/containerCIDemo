@@ -5,14 +5,9 @@ properties(
         [
                 parameters(
                         [
-                                string(defaultValue: 'master', description: '', name: 'ghprbActualCommit'),
-                                string(defaultValue: 'CentOS-PaaS-SIG/ci-pipeline', description: '', name: 'ghprbGhRepository'),
-                                string(defaultValue: '', description: '', name: 'sha1'),
-                                string(defaultValue: '', description: '', name: 'ghprbPullId'),
-                                string(defaultValue: '', description: '', name: 'ghprbPullAuthorLogin'),
-                                string(defaultValue: 'stable', description: 'Tag for slave image', name: 'COMPONENT1_TAG'),
-                                string(defaultValue: 'stable', description: 'Tag for slave image', name: 'COMPONENT2_TAG'),
-                                string(defaultValue: '172.30.254.79:5000', description: 'Docker repo url for Openshift instance', name: 'DOCKER_REPO_URL'),
+                                string(defaultValue: 'stable', description: 'Tag for component1 image', name: 'COMPONENT1_TAG'),
+                                string(defaultValue: 'stable', description: 'Tag for component2 image', name: 'COMPONENT2_TAG'),
+                                string(defaultValue: '172.30.1.1:5000', description: 'Docker repo url for Openshift instance', name: 'DOCKER_REPO_URL'),
                                 string(defaultValue: 'continuous-infra', description: 'Project namespace for Openshift operations', name: 'OPENSHIFT_NAMESPACE'),
                                 string(defaultValue: 'jenkins', description: 'Service Account for Openshift operations', name: 'OPENSHIFT_SERVICE_ACCOUNT'),
                         ]
@@ -38,7 +33,8 @@ podTemplate(name: podName,
                 // This adds the component1 container to the pod.
                 containerTemplate(name: 'component1',
                         alwaysPullImage: true,
-                        image: params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE + '/component1:' + params.COMPONENT1_TAG,
+                        image: params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE
+                                + '/component1:' + params.COMPONENT1_TAG,
                         ttyEnabled: true,
                         command: 'cat',
                         privileged: true,
@@ -46,7 +42,8 @@ podTemplate(name: podName,
                 // This adds the component2 container to the pod.
                 containerTemplate(name: 'component2',
                         alwaysPullImage: true,
-                        image: params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE + '/component2:' + params.COMPONENT2_TAG,
+                        image: params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE
+                                + '/component2:' + params.COMPONENT2_TAG,
                         ttyEnabled: true,
                         command: 'cat',
                         privileged: true,
