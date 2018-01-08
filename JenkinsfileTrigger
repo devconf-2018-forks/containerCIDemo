@@ -36,7 +36,7 @@ properties(
 )
 
 // If this PR does not include an image change, then use this tag
-STABLE_LABEL = "stable"
+STABLE_LABEL = "latest"
 tagMap = [:]
 
 // Initialize
