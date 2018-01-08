@@ -1,3 +1,5 @@
+STABLE_LABEL = "latest"
+
 properties(
         [
                 parameters(
@@ -11,11 +13,11 @@ properties(
                                         description: 'commit or branch to use from ghprbGhRepository'
                                 ),
                                 string(name: 'COMPONENT1_TAG',
-                                        defaultValue: 'stable',
+                                        defaultValue: STABLE_LABEL,
                                         description: 'Tag for component1 image'
                                 ),
                                 string(name: 'COMPONENT2_TAG',
-                                        defaultValue: 'stable',
+                                        defaultValue: STABLE_LABEL,
                                         description: 'Tag for component2 image'
                                 ),
                                 string(name: 'DOCKER_REPO_URL',
@@ -23,11 +25,11 @@ properties(
                                         description: 'Docker repo url for Openshift instance'
                                 ),
                                 string(name: 'OPENSHIFT_NAMESPACE',
-                                        defaultValue: 'continuous-infra',
+                                        defaultValue: 'continuous-infra-devel',
                                         description: 'Project namespace for Openshift operations',
                                 ),
                                 string(name: 'OPENSHIFT_SERVICE_ACCOUNT',
-                                        defaultValue: 'jenkins',
+                                        defaultValue: 'devel-jenkins',
                                         description: 'Service Account for Openshift operations',
                                 ),
                         ]
@@ -36,7 +38,6 @@ properties(
 )
 
 // If this PR does not include an image change, then use this tag
-STABLE_LABEL = "latest"
 tagMap = [:]
 
 // Initialize

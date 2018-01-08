@@ -1,16 +1,17 @@
 
 podName = 'myslave'
+STABLE_LABEL = "latest"
 
 properties(
         [
                 parameters(
                         [
                                 string(name: 'COMPONENT1_TAG',
-                                        defaultValue: 'stable',
+                                        defaultValue: STABLE_LABEL,
                                         description: 'Tag for component1 image'
                                 ),
                                 string(name: 'COMPONENT2_TAG',
-                                        defaultValue: 'stable',
+                                        defaultValue: STABLE_LABEL,
                                         description: 'Tag for component2 image'
                                 ),
                                 string(name: 'DOCKER_REPO_URL',
