@@ -23,7 +23,7 @@ properties(
                                         description: 'Project namespace for Openshift operations',
                                 ),
                                 string(name: 'OPENSHIFT_SERVICE_ACCOUNT',
-                                        defaultValue: 'jenkins',
+                                        defaultValue: 'devel-jenkins',
                                         description: 'Service Account for Openshift operations',
                                 ),
                         ]
