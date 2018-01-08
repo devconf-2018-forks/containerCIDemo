@@ -21,7 +21,7 @@ properties(
                                         description: 'Tag for component2 image'
                                 ),
                                 string(name: 'DOCKER_REPO_URL',
-                                        defaultValue: '172.30.1.1:5000',
+                                        defaultValue: '172.30.254.79:5000',
                                         description: 'Docker repo url for Openshift instance'
                                 ),
                                 string(name: 'OPENSHIFT_NAMESPACE',
