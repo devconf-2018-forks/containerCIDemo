@@ -64,6 +64,7 @@ pipeline {
         kubernetes {
             cloud 'openshift'
             label 'trigger-' + env.ghprbActualCommit
+            serviceAccount params.OPENSHIFT_SERVICE_ACCOUNT
             containerTemplate {
                 name 'jnlp'
                 args '${computer.jnlpmac} ${computer.name}'
