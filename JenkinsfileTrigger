@@ -65,6 +65,7 @@ pipeline {
             cloud 'openshift'
             label 'trigger-' + env.ghprbActualCommit
             serviceAccount params.OPENSHIFT_SERVICE_ACCOUNT
+            namespace params.OPENSHIFT_NAMESPACE
             containerTemplate {
                 name 'jnlp'
                 args '${computer.jnlpmac} ${computer.name}'
