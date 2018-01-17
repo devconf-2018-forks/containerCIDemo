@@ -66,7 +66,7 @@ pipeline {
             containerTemplate {
                 name 'jnlp'
                 args '${computer.jnlpmac} ${computer.name}'
-                image 'jenkins-slave-base-centos7:v3.6'
+                image 'jenkins-slave-base-centos7:v3.7'
                 ttyEnabled false
                 command ''
             }
