@@ -41,7 +41,7 @@ podTemplate(name: podName,
         containers: [
                 // This adds the custom slave container to the pod. Must be first with name 'jnlp'
                 containerTemplate(name: 'jnlp',
-                        image: "openshift/jenkins-slave-base-centos7:v3.7.0",
+                        image: "openshift/jenkins-slave-base-centos7:3.7.0",
                         ttyEnabled: false,
                         args: '${computer.jnlpmac} ${computer.name}',
                         command: '',
