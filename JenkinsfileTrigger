@@ -133,7 +133,7 @@ pipeline {
                 }
             }
         }
-        stage("Run Stage Jobs") {
+        stage("Run Application Test Job") {
             steps {
                 build job: 'containerCIDemo',
                         parameters: [
