@@ -73,11 +73,15 @@ podTemplate(name: podName,
         volumes: [])
         {
             node(podName) {
-                container('component1') {
-                    sh 'echo $CONTAINERNAME'
+                stage('component1 testing') {
+                    container('component1') {
+                        sh 'echo $CONTAINERNAME'
+                    }
                 }
-                container('component2') {
-                    sh 'echo $CONTAINERNAME'
+                stage('component2 testing') {
+                    container('component2') {
+                        sh 'echo $CONTAINERNAME'
+                    }
                 }
             }
         }
