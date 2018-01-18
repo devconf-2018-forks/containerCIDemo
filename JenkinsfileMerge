@@ -1,4 +1,4 @@
-STABLE_LABEL = "stable"
+STABLE_LABEL = "latest"
 
 properties(
         [

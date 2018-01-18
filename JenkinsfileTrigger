@@ -45,9 +45,9 @@ properties(
 tagMap = [:]
 
 // Initialize
-tagMap['jenkins-slave'] = params.SLAVE_TAG
-tagMap['component1']    = params.COMPONENT1_TAG
-tagMap['component2']    = params.COMPONENT2_TAG
+tagMap['jenkins-slave'] = STABLE_LABEL
+tagMap['component1']    = STABLE_LABEL
+tagMap['component2']    = STABLE_LABEL
 
 library identifier: "cico-pipeline-library@master",
         retriever: modernSCM([$class: 'GitSCMSource',
