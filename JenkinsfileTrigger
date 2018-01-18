@@ -73,8 +73,8 @@ pipeline {
             containerTemplate {
                 name 'jnlp'
                 args '${computer.jnlpmac} ${computer.name}'
-                image params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE +
-                        + '/jenkins-slave:' + params.SLAVE_TAG
+                image params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE
+                    + '/jenkins-slave:' + params.SLAVE_TAG
                 ttyEnabled false
                 command ''
             }
