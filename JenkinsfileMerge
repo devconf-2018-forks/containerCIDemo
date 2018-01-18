@@ -1,4 +1,4 @@
-STABLE_LABEL = "latest"
+STABLE_LABEL = "stable"
 
 properties(
         [
@@ -41,14 +41,6 @@ properties(
         ]
 )
 
-// If this PR does not include an image change, then use this tag
-tagMap = [:]
-
-// Initialize
-tagMap['jenkins-slave'] = params.SLAVE_TAG
-tagMap['component1']    = params.COMPONENT1_TAG
-tagMap['component2']    = params.COMPONENT2_TAG
-
 library identifier: "cico-pipeline-library@master",
         retriever: modernSCM([$class: 'GitSCMSource',
                               remote: "https://github.com/CentOS/cico-pipeline-library",
@@ -64,11 +56,16 @@ library(identifier: "ci-pipeline@master",
                                        [$class: 'RefSpecsSCMSourceTrait',
                                         templates: [[value: '+refs/heads/*:refs/remotes/@{remote}/*']]]]]))
 
+
+// Add new images here
+imageList = ["jenkins-slave", "component1", "component2"]
+imageOperations = []
+
 pipeline {
     agent {
         kubernetes {
             cloud 'openshift'
-            label 'trigger-' + env.ghprbActualCommit
+            label 'merge-' + env.ghprbActualCommit
             serviceAccount params.OPENSHIFT_SERVICE_ACCOUNT
             containerTemplate {
                 name 'jnlp'
@@ -81,82 +78,56 @@ pipeline {
         }
     }
     stages {
-        stage("Get Changelog") {
+        stage("Detect Images to Promote") {
             steps {
-                node('master') {
-                    script {
-                        echo "PR number is: ${env.ghprbPullId}"
-                        env.changeLogStr = pipelineUtils.getChangeLogFromCurrentBuild()
-                        echo env.changeLogStr
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject(params.OPENSHIFT_NAMESPACE) {
+                            imageList.each {
+                                String tagList = sh(
+                                        script: "oc get is -n ${params.OPENSHIFT_NAMESPACE} -o=jsonpath=\'{.items[?(@.metadata.name==\"${it}\")].status.tags[*].tag}\'",
+                                        returnStdout: true
+                                ).trim()
+                                def prTag = tagList.tokenize(' ').find { it == "PR-" + env.ghprbPullId }
+                                if (prTag != null) {
+                                    echo "Found PR tag: " + prTag + " for image ${it}"
+                                    imageOperations.add(it)
+                                } else {
+                                    echo "No tag found for image ${it}!"
+                                }
+                            }
+                        }
                     }
-                    writeFile file: 'changelog.txt', text: env.changeLogStr
-                    archiveArtifacts allowEmptyArchive: true, artifacts: 'changelog.txt'
                 }
             }
         }
-        stage("jenkins-slave image build") {
-            when {
-                // Only build if we have related files in changeset
-                changeset "config/jenkins-slave/**"
-            }
+        stage("Merge PR and Rebuild Images") {
             steps {
-                script {
-                    tagMap['jenkins-slave'] = pipelineUtils.buildImage(params.OPENSHIFT_NAMESPACE, "jenkins-slave")
+                // lock to make sure only one is allowed at anytime
+                lock('merge-and-image-rebuild-lock') {
+                    script {
+                        // need this for ghprb plugin since it is really
+                        // a post build step and it assumes the build is complete.
+                        currentBuild.result = 'SUCCESS'
+                    }
+
+                    step([$class: 'GhprbPullRequestMerge', allowMergeWithoutTriggerPhrase: false,
+                          deleteOnMerge: false, disallowOwnCode: false, failOnNonMerge: false,
+                          mergeComment: ' ', onlyAdminsMerge: false])
+
+                    script {
+                        openshift.withCluster() {
+                            openshift.withProject(params.OPENSHIFT_NAMESPACE) {
+                                imageOperations.each {
+                                    pipelineUtils.buildStableImage(params.OPENSHIFT_NAMESPACE, it)
+                                }
+                            }
+                        }
+                        pipelineUtils.sendPRCommentforTags(imageOperations)
+                    }
                 }
             }
-        }
-        stage("component1 image build") {
-            when {
-                // Only build if we have related files in changeset
-                changeset "config/component1/**"
-            }
-            steps {
-                script {
-                    tagMap['component1'] = pipelineUtils.buildImage(params.OPENSHIFT_NAMESPACE, "component1")
-                }
-            }
-        }
-        stage("component2 image build") {
-            when {
-                // Only build if we have related files in changeset
-                changeset "config/component2/**"
-            }
-            steps {
-                script {
-                    tagMap['component2'] = pipelineUtils.buildImage(params.OPENSHIFT_NAMESPACE, "component2")
-                }
-            }
-        }
-        stage("Image Tag Report") {
-            steps {
-                script {
-                    pipelineUtils.printLabelMap(tagMap)
-                }
-            }
-        }
-        stage("Run Stage Jobs") {
-            steps {
-                build job: 'containerCIDemo',
-                        parameters: [
-                                string(name: 'ghprbActualCommit', value: "${params.ghprbActualCommit}"),
-                                string(name: 'ghprbGhRepository', value: "${params.ghprbGhRepository}"),
-                                string(name: 'ghprbPullAuthorLogin', value: "${env.ghprbPullAuthorLogin}"),
-                                string(name: 'sha1', value: "${env.sha1}"),
-                                string(name: 'ghprbPullId', value: "${env.ghprbPullId}"),
-                                string(name: 'SLAVE_TAG', value: tagMap['jenkins-slave']),
-                                string(name: 'COMPONENT1_TAG', value: tagMap['component1']),
-                                string(name: 'COMPONENT2_TAG', value: tagMap['component2']),
-                        ],
-                        wait: true
-            }
-        }
-    }
-    post {
-        success {
-            echo "yay!"
-        }
-        failure {
-            error "build failed!"
         }
     }
 }
+

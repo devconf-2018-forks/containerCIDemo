@@ -41,7 +41,8 @@ podTemplate(name: podName,
         containers: [
                 // This adds the custom slave container to the pod. Must be first with name 'jnlp'
                 containerTemplate(name: 'jnlp',
-                        image: "jenkins/jnlp-slave:3.10-1-alpine",
+                        image: params.DOCKER_REPO_URL + '/' + params.OPENSHIFT_NAMESPACE
+                                + '/component1:' + params.SLAVE_TAG,
                         ttyEnabled: false,
                         args: '${computer.jnlpmac} ${computer.name}',
                         command: '',
