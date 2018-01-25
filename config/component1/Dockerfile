@@ -1,2 +1,2 @@
 FROM fedora:26
-ENV CONTAINERNAME scott
+ENV CONTAINERNAME component1
